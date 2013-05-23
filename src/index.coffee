@@ -69,7 +69,7 @@ validateConfig = (config) ->
     s = if e.length > 1 then "s" else ""
     msg = "Configuration error#{s}: #{errors}. Here's an example config:" + exampleConfig
     throw new Error(msg)
-    
+
 validateConnection = (conn, e = []) ->
     for f in ["host", "userName", "password"]
         unless conn[f]?
@@ -96,7 +96,7 @@ resolveRequires = (config, cb) ->
         o = { arPath, gwPath }
         o.activeRecords = removeExtensions(results.activeRecords)
         o.tableGateways = removeExtensions(results.tableGateways)
-         
+
         cb(null, o)
 
 doRequires = (db, requires) ->
@@ -152,7 +152,7 @@ e = ezekiel = {
 
         if config.schema != false
             tasks.schema = (cb) -> ezekiel.loadSchema(db, config, cb)
-       
+
         if config.require?
             tasks.requires = (cb) -> resolveRequires(config, cb)
 
@@ -173,7 +173,7 @@ e = ezekiel = {
             return cb(null, s)
 
     getAdapter: (connection) ->
-        name = 'tedious'
+        name = engines[connection.engine].adapter
         path = "./adapters/#{name}"
         adapter = require(path)
         return new adapter(connection)
