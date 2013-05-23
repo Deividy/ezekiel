@@ -102,7 +102,8 @@ class MySqlAdapter
             {
                 rowShape: 'array'
                 master: true
-                stmt:"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '#{name}';"
+                stmt:"SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA
+                            WHERE SCHEMA_NAME = '#{name}';"
                 onRow: (row) ->
                     done = true
                     callback(row?[0]?)
