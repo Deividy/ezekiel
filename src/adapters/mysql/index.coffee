@@ -23,7 +23,9 @@ class MySqlAdapter
                 callback(err)
             else
                 conn.on('error', options.onError ? @onConnectionError)
-                conn.on('message', options.onMessage ? @onConnectionMessage)
+                # we dont have such event with node-mysql
+                # https://github.com/felixge/node-mysql
+                #conn.on('message', options.onMessage ? @onConnectionMessage)
                 callback(null, conn)
         )
 
@@ -73,7 +75,6 @@ class MySqlAdapter
             stmt.on('end', () =>
                 # MUST: ensure done is called even if there's an error, otherwise
                 # we'll leak the connection
-
                 if doAllRows
                     options.onAllRows(rows, options)
 
