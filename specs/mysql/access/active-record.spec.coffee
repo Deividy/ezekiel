@@ -93,7 +93,7 @@ describe 'ActiveRecord', () ->
         o.persist (err) ->
             return done(err) if err
             o._stateName().should.eql('persisted')
-            #o.id.should.eql(cntFighters + 1)
+            o.id.should.be.a('number')
             cntFighters++
             assertCount cntFighters, done
 

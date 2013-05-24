@@ -117,7 +117,7 @@ describe 'MySQL Table gateway', () ->
         cntExpected = cntFighters + 1
         db.fighters.insertOne f, (err, inserted) ->
             return done(err) if err
-            #inserted.id.should.eql(cntExpected)
+            inserted.id.should.be.a('number')
             assertCount cntFighters + 1, done, (cb) ->  cb()
 
 
@@ -153,7 +153,7 @@ describe 'MySQL Table gateway', () ->
         cntFighters++
         db.fighters.upsertOne f, (err, inserted) ->
             return done(err) if err
-            #inserted.id.should.eql(cntExpected)
+            inserted.id.should.be.a('number')
             assertCount cntFighters, done, (cb) ->  cb()
 
 
