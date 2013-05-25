@@ -32,7 +32,6 @@ bulk = {
             @_addBulkMerges(keyName, rows)
 
         @lines.length = @idx
-        console.log @lines.join('\n')
 
         return @lines.join('\n')
 
@@ -46,7 +45,7 @@ bulk = {
 
     _addBulkMerges: (keyName, rows) ->
         return if _.isEmpty(rows)
-        key = @table.db.constraintsByName[@table.name + ".PRIMARY"]
+        key = @table.db.constraintsByName[keyName]
 
         cntValuesByColumn = {}
         columns = []
@@ -65,7 +64,7 @@ bulk = {
         tempTableColumns = []
         for c in columns
             cntValues = cntValuesByColumn[c.property]
-            #continue if cntValues == 0
+            continue if cntValues == 0
 
             nullable = cntValues < rows.length
             tempColumn = {
@@ -77,7 +76,11 @@ bulk = {
         tempTableName = @nameTempTable('BulkMerge')
 
         tempTable = schemer.table(name: tempTableName).addColumns(tempTableColumns)
-        tempTable.primaryKey(columns: _.pluck(key.columns, 'name'), isClustered: true)
+
+        tempTable.primaryKey({
+            columns: _.pluck(_.uniq(key.columns, (item, key, a) -> item.name), 'name'),
+            isClustered: true
+        })
 
         @addLine(@createTempTable(tempTable))
         @addLine(@_firstInsertLine(tempTable))
@@ -95,8 +98,9 @@ bulk = {
 
     # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
     doTableMerge: (target, source) ->
-        t = (c) => "target." + @delimit(c.name)
-        s = (c) => "source." + @delimit(c.name)
+        t = (c) => @delimit(c.name)
+        s = (c) => @delimit(c.name)
+
         eq = (c) =>
             lhs = t(c)
             rhs = if c.isNullable then "COALESCE(#{s(c)}, #{t(c)})" else s(c)
@@ -113,12 +117,12 @@ bulk = {
         return a.join('\n')
 
     _firstInsertLine: (table) ->
-        columns = _.pluck(table.columns, 'property')[1..].join(',')
+        columns = _.pluck(table.columns, 'property').join(',')
         return "INSERT #{@delimit(table.name)} (#{columns}) VALUES"
 
     _insertValues: (table, row) ->
-        values = Array(table.columns.length-1)
-        for c, i in table.columns[1..]
+        values = Array(table.columns.length)
+        for c, i in table.columns
             v = row[c.property]
             values[i] = if v? then @f(v) else 'NULL'
 
