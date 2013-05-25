@@ -1,6 +1,0 @@
-# TODO: MySQL
-
-## Table gateway should be able to merge arrays
-## Elegant way to output insert id
-## live-db able to use both databases
-## Remove access/ (of course, duh!)
