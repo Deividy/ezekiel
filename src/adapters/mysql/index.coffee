@@ -2,7 +2,21 @@ mysql = require('mysql')
 _ = require('underscore')
 poolModule = require('generic-pool')
 
-class MySqlAdapter
+# https://github.com/felixge/node-mysql#connection-options
+_defaults =
+    debug: false
+    multipleStatements: true
+    charset: 'UTF8_GENERAL_CI'
+    timezone: 'local'
+    insecureAuth: false
+    typeCast: true
+    supportBigNumbers: false
+    bigNumberStrings: false
+    #bigNumberStrings:
+    #queryFormat: (query, values) -> # https://github.com/felixge/node-mysql#custom-format
+    #flags: [ ] https://github.com/felixge/node-mysql#connection-flags
+
+class MysqlAdapter
     constructor: (config) ->
         @config = _.clone(config)
         @config.user = config.userName
@@ -16,16 +30,13 @@ class MySqlAdapter
         })
 
     _createConnection: (options, callback) ->
-        conn = mysql.createConnection(@config)
+        conn = mysql.createConnection(_.defaults(@config, _defaults))
 
         conn.connect((err) =>
             if (err)
                 callback(err)
             else
                 conn.on('error', options.onError ? @onConnectionError)
-                # we dont have such event with node-mysql
-                # https://github.com/felixge/node-mysql
-                #conn.on('message', options.onMessage ? @onConnectionMessage)
                 callback(null, conn)
         )
 
@@ -139,4 +150,4 @@ class MySqlAdapter
             }
         )
 
-module.exports = MySqlAdapter
+module.exports = MysqlAdapter
