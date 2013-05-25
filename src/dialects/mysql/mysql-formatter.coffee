@@ -70,33 +70,6 @@ class MysqlFormatter extends SqlFormatter
         ret.push "SELECT #{outputs.join(', ')} FROM #{@_doTargetTable(targetTable)} "
         ret.push "WHERE LAST_INSERT_ID();"
 
-    doTableMerge: (target, source) ->
-        console.log 'eeei'
-        # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
-        t = (c) => "target." + @delimit(c.name)
-        s = (c) => "source." + @delimit(c.name)
-        eq = (c) =>
-            lhs = t(c)
-            rhs = if c.isNullable then "COALESCE(#{s(c)}, #{t(c)})" else s(c)
-            return lhs + " = " + rhs
-
-        onClauses = (eq(c) for c in source.pk.columns).join(" AND ")
-        updates = (eq(c) for c in source.columns when !c.isPartOfKey).join(", ")
-        insertValues = (s(c) for c in source.columns).join(", ")
-
-        a = [
-            "MERGE #{@delimit(target.name)} as target",
-            "USING #{@delimit(source.name)} as source"
-            "ON (#{onClauses})"
-            "WHEN MATCHED THEN"
-            "  UPDATE SET #{updates}"
-            "WHEN NOT MATCHED THEN"
-            "  INSERT (#{@doNameList(source.columns)})"
-            "  VALUES (#{insertValues});"
-        ]
-
-        return a.join('\n')
-
 module.exports = MysqlFormatter
 
 require('./bulk-formatter')

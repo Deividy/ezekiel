@@ -10,7 +10,6 @@ bulk = {
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
 
-
         rows = merge.rows
         F.demandNonEmptyArray(rows, 'merge.rows')
 
@@ -95,7 +94,6 @@ bulk = {
     addLine: (l) -> @lines[@idx++] = l
 
     # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
-
     doTableMerge: (target, source) ->
         t = (c) => "target." + @delimit(c.name)
         s = (c) => "source." + @delimit(c.name)
