@@ -7,6 +7,7 @@ schemer = require('../../schema')
 
 bulk = {
     # SHOULD: use merge storage engine
+
     # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
     merge: (merge) ->
         unless merge?.targetTable?

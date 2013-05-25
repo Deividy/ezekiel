@@ -34,9 +34,10 @@ schema = {
             type += "(#{c.maxLength})"
 
         nullable = if c.isNullable then "NULL" else "NOT NULL"
-        if (c.name == 'Id')
-            return "#{@delimit(c.name)} #{type} #{nullable} auto_increment"
-        return "#{@delimit(c.name)} #{type} #{nullable}"
+
+        extra = c.extra ? ""
+
+        return "#{@delimit(c.name)} #{type} #{nullable} #{extra}"
 
     nameTempTable: (baseName) ->
         throw new Error('nameTempTable: you must provide a baseName') unless baseName?
