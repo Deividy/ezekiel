@@ -64,4 +64,16 @@ describe('MySQL Adapter', () ->
             done()
         )
     )
+
+    it('should test more then one sql', (done) ->
+        execute("SELECT 1; SELECT 2; SELECT 3", (err, res) ->
+            return done(err) if (err)
+
+            res.length.should.be.eql(3)
+            res[0][1].should.be.eql(1)
+            res[1][2].should.be.eql(2)
+            res[2][3].should.be.eql(3)
+            done()
+        )
+    )
 )

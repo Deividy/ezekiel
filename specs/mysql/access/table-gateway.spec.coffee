@@ -179,13 +179,12 @@ describe 'MySQL Table gateway', () ->
         cntFighters = 0
         assertCount cntFighters, done, (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
 
-    # not implemented
-
-    #it 'merges an array of data', (done) ->
-    #    db.fighters.merge(testData.fighters, (err) ->
-    #        return done(err) if (err)
-    #        done()
-    #    )
+    it 'merges an array of data', (done) ->
+        db.fighters.merge(testData.fighters, (err) ->
+            console.log err
+            return done(err) if (err)
+            done()
+        )
 
     #it 'merges an array of data', (done) ->
     #    async.series([
