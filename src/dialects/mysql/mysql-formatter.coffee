@@ -8,10 +8,6 @@ class MysqlFormatter extends SqlFormatter
     joinNameParts: (names) -> _.map(names, (p) -> "`#{p}`").join(".")
 
     insert: (stmt) ->
-        columns = [ ]
-        values = [ ]
-        @fillNamesAndValues(stmt.values, columns, values)
-
         # we dont have anyway to output columns in an insert in mysql
         # what we can do is run another sql, like LAST_INSERT_ID(), but, it doesnt
         # works with oneRow and our actual ezekiel table gateway, so today we dont have a good
@@ -20,8 +16,19 @@ class MysqlFormatter extends SqlFormatter
         # https://dev.mysql.com/doc/refman/5.5/en/insert.html
         # http://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_last-insert-id
 
-        return "INSERT #{@_doTargetTable(stmt.targetTable)} (#{columns.join(', ')})
-                                                        VALUES (#{values.join(', ')})"
+        ret = ["INSERT #{@_doTargetTable(stmt.targetTable)}"]
+        names = [ ]
+        values = [ ]
+        @fillNamesAndValues(stmt.values, names, values)
+
+        ret.push "(#{names.join(', ')}) VALUES (#{values.join(', ')});"
+
+        if stmt.outputColumns?
+            @addOutputColumns(ret, stmt.targetTable, stmt.outputColums)
+        else
+            ret.push "SELECT LAST_INSERT_ID() as id;"
+
+        return ret.join("\n")
 
     upsert: (stmt) ->
         columns = [ ]
@@ -37,12 +44,60 @@ class MysqlFormatter extends SqlFormatter
         #
         # http://dev.mysql.com/doc/refman/5.0/en/insert-on-duplicate.html
 
+        eq = (c) -> "#{c} = VALUES (#{c})"
+        onColumns = (@doColumnAtom(c) for c in stmt.onColumns)
+        updates = (eq(c) for c in columns when !_.contains(onColumns, c)).join(", ")
+
         ret = [
             "INSERT #{@_doTargetTable(stmt.targetTable)} (#{columns.join(', ')})",
             "VALUES (#{values.join(', ')})"
             "ON DUPLICATE KEY UPDATE"
         ]
-        ret.push ("#{c} = VALUES (#{c})" for c in columns).join(", ")
-        return ret.join(' ')
+        ret.push ("#{c} = VALUES (#{c})" for c in columns).join(", ") + ";"
+
+        if stmt.outputColumns?
+            @addOutputColumns(ret, stmt.targetTable, stmt.outputColums)
+        else
+            ret.push "SELECT LAST_INSERT_ID() as id;"
+
+        return ret.join('\n')
+
+    addOutputColumns: (a, targetTable, outputColumns) ->
+        F.demandGoodArray(a, 'a')
+        return unless outputColumns?
+
+        outputs = (@doOutputColumn(o, 'inserted') for o in [].concat(stmt.outputColumns))
+        ret.push "SELECT #{outputs.join(', ')} FROM #{@_doTargetTable(targetTable)} "
+        ret.push "WHERE LAST_INSERT_ID();"
+
+    doTableMerge: (target, source) ->
+        console.log 'eeei'
+        # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
+        t = (c) => "target." + @delimit(c.name)
+        s = (c) => "source." + @delimit(c.name)
+        eq = (c) =>
+            lhs = t(c)
+            rhs = if c.isNullable then "COALESCE(#{s(c)}, #{t(c)})" else s(c)
+            return lhs + " = " + rhs
+
+        onClauses = (eq(c) for c in source.pk.columns).join(" AND ")
+        updates = (eq(c) for c in source.columns when !c.isPartOfKey).join(", ")
+        insertValues = (s(c) for c in source.columns).join(", ")
+
+        a = [
+            "MERGE #{@delimit(target.name)} as target",
+            "USING #{@delimit(source.name)} as source"
+            "ON (#{onClauses})"
+            "WHEN MATCHED THEN"
+            "  UPDATE SET #{updates}"
+            "WHEN NOT MATCHED THEN"
+            "  INSERT (#{@doNameList(source.columns)})"
+            "  VALUES (#{insertValues});"
+        ]
+
+        return a.join('\n')
 
 module.exports = MysqlFormatter
+
+require('./bulk-formatter')
+require('./schema-formatter')
