@@ -175,7 +175,18 @@ describe 'MySQL Table gateway', () ->
                 o.lastName.should.eql('Silva')
             done()
 
+    it 'deletes many rows', (done) ->
+        cntFighters = 0
+        assertCount cntFighters, done, (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
+
     # not implemented
+
+    #it 'merges an array of data', (done) ->
+    #    db.fighters.merge(testData.fighters, (err) ->
+    #        return done(err) if (err)
+    #        done()
+    #    )
+
     #it 'merges an array of data', (done) ->
     #    async.series([
     #        (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
