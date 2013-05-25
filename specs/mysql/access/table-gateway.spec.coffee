@@ -179,20 +179,31 @@ describe 'MySQL Table gateway', () ->
         cntFighters = 0
         assertCount cntFighters, done, (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
 
+    it 'can count rows', (done) ->
+        db.fighters.count (err, cnt) ->
+            return done(err) if err
+            cnt.should.eql(0)
+            done()
+
     it 'merges an array of data', (done) ->
         db.fighters.merge(testData.fighters, (err) ->
             return done(err) if (err)
             done()
         )
 
+    it 'can count rows', (done) ->
+        db.fighters.count (err, cnt) ->
+            return done(err) if err
+            cnt.should.eql(testData.fighters.length)
+            done()
+
     it 'merges an array of data', (done) ->
-        async.series([
+        async.waterfall([
             (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
             (cb) -> db.fighters.merge(testData.fighters, cb)
             (cb) -> db.fighters.all(cb)
-        ], (err, results) ->
+        ], (err, fighters) ->
             return done(err) if err?
-            fighters = results[2]
-            fighters.length.should.eql(4)
+            fighters.length.should.eql(testData.fighters.length)
             done()
         )
