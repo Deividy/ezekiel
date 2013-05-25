@@ -26,7 +26,7 @@ class MysqlUtils extends DbUtils
         query = "
         SELECT
             TABLE_NAME tableName, COLUMN_NAME name, ORDINAL_POSITION position,
-            (COLUMN_KEY = 'PRI' AND EXTRA LIKE '%auto_increment%') isIdentity,
+            (COLUMN_KEY = 'PRI' AND EXTRA LIKE '%auto_increment%') isIdentity, EXTRA extra,
             (PRIVILEGES NOT LIKE '%insert,update%') isComputed,
             IS_NULLABLE isNullable, DATA_TYPE dbDataType, CHARACTER_MAXIMUM_LENGTH maxLength
         FROM

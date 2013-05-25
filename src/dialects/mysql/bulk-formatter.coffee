@@ -26,27 +26,28 @@ bulk = {
         size = o.cntRows + 16
         @lines = Array(size)
 
-        columns = _.reject(_.pluck(@table.columns, 'property'), (c) -> c == 'id')
+        tableColumns = _.reject(@table.columns, (c) -> c.extra.match(/auto_increment/))
+        columns = _.pluck(tableColumns, 'property')
 
         @addLine "INSERT #{@delimit(@table.name)} (#{columns.join(', ')}) VALUES"
         values = [ ]
         for r in rows
-            values.push @_insertValues(@table, r)
+            values.push @_insertValues(tableColumns, r)
 
         @addLine values.join(',')
 
         @addLine "ON DUPLICATE KEY UPDATE"
         @addLine ("#{c} = VALUES (#{c})" for c in columns).join(", ")
-        return @lines.join('\n') + ";"
+
+        return @lines.join('\n')
 
     addLine: (l) -> @lines[@idx++] = l
 
-    _insertValues: (table, row) ->
+    _insertValues: (columns, row) ->
         values = [ ]
-        for c, i in table.columns
-            if (c.property != 'id')
-                v = row[c.property]
-                values.push if v? then @f(v) else 'NULL'
+        for c, i in columns
+            v = row[c.property]
+            values.push if v? then @f(v) else 'NULL'
 
         return "(#{values.join(',')})"
 }

@@ -44,16 +44,15 @@ class MysqlFormatter extends SqlFormatter
         #
         # http://dev.mysql.com/doc/refman/5.0/en/insert-on-duplicate.html
 
-        eq = (c) -> "#{c} = VALUES (#{c})"
         onColumns = (@doColumnAtom(c) for c in stmt.onColumns)
-        updates = (eq(c) for c in columns when !_.contains(onColumns, c)).join(", ")
+        updates = ("#{c} = VALUES (#{c})" for c in columns when !_.contains(onColumns, c))
 
         ret = [
             "INSERT #{@_doTargetTable(stmt.targetTable)} (#{columns.join(', ')})",
             "VALUES (#{values.join(', ')})"
             "ON DUPLICATE KEY UPDATE"
         ]
-        ret.push updates + ";"
+        ret.push updates.join(", ") + ";"
 
         if stmt.outputColumns?
             @addOutputColumns(ret, stmt.targetTable, stmt.outputColums)
