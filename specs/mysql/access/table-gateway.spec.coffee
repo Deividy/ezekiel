@@ -181,20 +181,18 @@ describe 'MySQL Table gateway', () ->
 
     it 'merges an array of data', (done) ->
         db.fighters.merge(testData.fighters, (err) ->
-            console.log err
             return done(err) if (err)
             done()
         )
 
-    #it 'merges an array of data', (done) ->
-    #    async.series([
-    #        (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
-    #        (cb) -> db.fighters.merge(testData.fighters, cb)
-    #        (cb) -> db.fighters.all(cb)
-    #    ], (err, results) ->
-    #        console.log err
-    #        return done(err) if err?
-    #        fighters = results[2]
-    #        fighters.length.should.eql(4)
-    #        done()
-    #    )
+    it 'merges an array of data', (done) ->
+        async.series([
+            (cb) -> db.fighters.deleteMany(id: ">": 0, cb)
+            (cb) -> db.fighters.merge(testData.fighters, cb)
+            (cb) -> db.fighters.all(cb)
+        ], (err, results) ->
+            return done(err) if err?
+            fighters = results[2]
+            fighters.length.should.eql(4)
+            done()
+        )

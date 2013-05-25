@@ -53,7 +53,7 @@ class MysqlFormatter extends SqlFormatter
             "VALUES (#{values.join(', ')})"
             "ON DUPLICATE KEY UPDATE"
         ]
-        ret.push ("#{c} = VALUES (#{c})" for c in columns).join(", ") + ";"
+        ret.push updates + ";"
 
         if stmt.outputColumns?
             @addOutputColumns(ret, stmt.targetTable, stmt.outputColums)

@@ -6,6 +6,8 @@ MysqlFormatter = require('./mysql-formatter')
 schemer = require('../../schema')
 
 bulk = {
+    # SHOULD: use merge storage engine
+    # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
     merge: (merge) ->
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
@@ -23,110 +25,30 @@ bulk = {
         @idx = 0
         size = o.cntRows + 16
         @lines = Array(size)
-        @_addBulkInserts(o.inserts)
 
-        for keyName, rows of o.updatesByKey
-            @_addBulkUpdates(keyName, rows)
+        columns = _.reject(_.pluck(@table.columns, 'property'), (c) -> c == 'id')
 
-        for keyName, rows of o.mergesByKey
-            @_addBulkMerges(keyName, rows)
-
-        @lines.length = @idx
-
-        return @lines.join('\n')
-
-    _addBulkInserts: (rows) ->
-        return if _.isEmpty(rows)
-        F.throw("not implemented")
-
-    _addBulkUpdates: (keyName, rows) ->
-        return if _.isEmpty(rows)
-        F.throw("not implemented")
-
-    _addBulkMerges: (keyName, rows) ->
-        return if _.isEmpty(rows)
-        key = @table.db.constraintsByName[keyName]
-
-        cntValuesByColumn = {}
-        columns = []
-
-        for c in @table.columns
-            if c.isReadOnly && !key.contains(c)
-                continue
-
-            columns.push(c)
-            cntValuesByColumn[c.property] = 0
-
+        @addLine "INSERT #{@delimit(@table.name)} (#{columns.join(', ')}) VALUES"
+        values = [ ]
         for r in rows
-            for c in columns
-                cntValuesByColumn[c.property]++ if c.property of r
+            values.push @_insertValues(@table, r)
 
-        tempTableColumns = []
-        for c in columns
-            cntValues = cntValuesByColumn[c.property]
-            continue if cntValues == 0
+        @addLine values.join(',')
 
-            nullable = cntValues < rows.length
-            tempColumn = {
-                name: c.name, property: c.property, isNullable: nullable,
-                dbDataType: c.dbDataType, maxLength: c.maxLength
-            }
-            tempTableColumns.push(tempColumn)
-
-        tempTableName = @nameTempTable('BulkMerge')
-
-        tempTable = schemer.table(name: tempTableName).addColumns(tempTableColumns)
-
-        tempTable.primaryKey({
-            columns: _.pluck(_.uniq(key.columns, (item, key, a) -> item.name), 'name'),
-            isClustered: true
-        })
-
-        @addLine(@createTempTable(tempTable))
-        @addLine(@_firstInsertLine(tempTable))
-
-        for r in rows
-           @addLine(@_insertValues(tempTable, r))
-
-        n = @idx-1
-        @lines[n] = @lines[n].slice(0, -1) + ';\n'
-
-        @addLine(@doTableMerge(@table, tempTable))
-        @addLine("DROP TABLE " + @delimit(tempTableName) + ";")
+        @addLine "ON DUPLICATE KEY UPDATE"
+        @addLine ("#{c} = VALUES (#{c})" for c in columns).join(", ")
+        return @lines.join('\n') + ";"
 
     addLine: (l) -> @lines[@idx++] = l
 
-    # http://dev.mysql.com/doc/refman/5.6/en/merge-storage-engine.html
-    doTableMerge: (target, source) ->
-        t = (c) => @delimit(c.name)
-        s = (c) => @delimit(c.name)
-
-        eq = (c) =>
-            lhs = t(c)
-            rhs = if c.isNullable then "COALESCE(#{s(c)}, #{t(c)})" else s(c)
-            return lhs + " = " + rhs
-
-        onClauses = (eq(c) for c in source.pk.columns).join(" AND ")
-        updates = (eq(c) for c in source.columns when !c.isPartOfKey).join(", ")
-        insertValues = (s(c) for c in source.columns).join(", ")
-
-        a = [
-            "ALTER TABLE #{@delimit(target.name)}"
-            "UNION=(#{@delimit(target.name)}, #{@delimit(source.name)});"
-        ]
-        return a.join('\n')
-
-    _firstInsertLine: (table) ->
-        columns = _.pluck(table.columns, 'property').join(',')
-        return "INSERT #{@delimit(table.name)} (#{columns}) VALUES"
-
     _insertValues: (table, row) ->
-        values = Array(table.columns.length)
+        values = [ ]
         for c, i in table.columns
-            v = row[c.property]
-            values[i] = if v? then @f(v) else 'NULL'
+            if (c.property != 'id')
+                v = row[c.property]
+                values.push if v? then @f(v) else 'NULL'
 
-        return "(#{values.join(',')}),"
+        return "(#{values.join(',')})"
 }
 
 _.extend(MysqlFormatter.prototype, bulk)
