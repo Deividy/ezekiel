@@ -87,9 +87,6 @@ class MySqlAdapter
             stmt.on('error', fnErr)
         )
 
-
-    onConnectionMessage: (msg) ->
-
     onConnectionError: (err) ->
         throw new Error(err)
 
