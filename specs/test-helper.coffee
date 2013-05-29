@@ -55,7 +55,7 @@ assertSqlFormatting = (schema, sql, expected, debug) ->
 metaData = null
 getMetaData = () ->
     return metaData if metaData?
-    return (metaData = require('./data/metadata'))
+    return (metaData = require("./data/metadata"))
 
 rawSchema = null
 getRawSchema = () ->
