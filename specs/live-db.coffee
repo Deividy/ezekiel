@@ -1,3 +1,3 @@
-tests = require("./config").tests
+testDb = require("./config").testDb
 
-module.exports = require("./live-db.#{tests}")
+module.exports = require("./live-db/#{testDb}")

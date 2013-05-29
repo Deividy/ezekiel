@@ -1,19 +1,21 @@
 fs = require('fs')
-h = require('./test-helper')
+h = require('../test-helper')
 DbSchema = h.requireSrc('schema/db-schema')
 SqlFormatter = h.requireSrc('dialects/mysql/mysql-formatter')
 sql = h.requireSrc('sql')
 ezekiel = h.requireSrc()
 
-data = require('./data/test-data.coffee')
+data = require('../data/test-data.coffee')
 
 cleanTestData = (cb) ->
-    q = fs.readFileSync("./data/mysql.sql").toString() + " \n "
+    q = "SET FOREIGN_KEY_CHECKS=0; TRUNCATE Rounds; TRUNCATE Fights; TRUNCATE Fighters;"
 
     for f in data.fighters
         formatter = new SqlFormatter(h.getCookedSchema())
         insert = sql.insert('fighters', f)
-        q += (formatter.format(insert))
+        q += formatter.format(insert)
+
+    q += "SET FOREIGN_KEY_CHECKS=1;"
 
     h.liveDb.noData(q, cb)
 

@@ -1,5 +1,5 @@
 {
-    "tests": "mssql",
+    "testDb": "mssql",
     "databases": {
         "mssql": {
             "engine": "mssql",

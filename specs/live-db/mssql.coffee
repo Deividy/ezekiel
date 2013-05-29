@@ -1,10 +1,10 @@
-h = require('./test-helper')
+h = require('../test-helper')
 DbSchema = h.requireSrc('schema/db-schema')
 SqlFormatter = h.requireSrc('dialects/sql-formatter')
 sql = h.requireSrc('sql')
 ezekiel = h.requireSrc()
 
-data = require('./data/test-data.coffee')
+data = require('../data/test-data.coffee')
 
 cleanTestData = (cb) ->
     q = "DELETE Fighters
