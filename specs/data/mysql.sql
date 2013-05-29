@@ -1,17 +1,11 @@
-DROP TABLE IF EXISTS Rounds CASCADE;
-DROP TABLE IF EXISTS Fights CASCADE;
-DROP TABLE IF EXISTS Events CASCADE;
-DROP TABLE IF EXISTS Promotions CASCADE;
-DROP TABLE IF EXISTS Fighters CASCADE;
-
-CREATE TABLE Promotions (
+CREATE TABLE IF NOT EXISTS Promotions (
     Id INT NOT NULL AUTO_INCREMENT,
     Name VARCHAR(100) NOT NULL,
     CONSTRAINT PRIMARY KEY CLUSTERED (Id),
     UNIQUE INDEX UQ_Promotions_Name (Name)
 );
 
-CREATE TABLE Fighters (
+CREATE TABLE IF NOT EXISTS Fighters (
     Id INT NOT NULL AUTO_INCREMENT,
     FirstName varchar(100) NOT NULL,
     LastName varchar(100) NOT NULL,
@@ -25,7 +19,7 @@ CREATE TABLE Fighters (
     UNIQUE INDEX UQ_Fighters_LastName_FirstName (LastName, FirstName)
 );
 
-CREATE TABLE Events (
+CREATE TABLE IF NOT EXISTS Events (
     Id INT NOT NULL AUTO_INCREMENT,
     Name varchar(100) NOT NULL,
     Date datetime NOT NULL,
@@ -35,7 +29,7 @@ CREATE TABLE Events (
     CONSTRAINT FK_Events_Promotions FOREIGN KEY (PromotionId) REFERENCES Promotions (Id)
 );
 
-CREATE TABLE Fights (
+CREATE TABLE IF NOT EXISTS Fights (
     Id INT NOT NULL AUTO_INCREMENT,
     EventId int NOT NULL,
 
@@ -62,7 +56,7 @@ CREATE TABLE Fights (
     CONSTRAINT FK_Fights_Fighters_Loser FOREIGN KEY (LoserId) REFERENCES Fighters (Id)
 );
 
-CREATE TABLE Rounds (
+CREATE TABLE IF NOT EXISTS Rounds (
     FightId int NOT NULL,
     Number int NOT NULL,
 
