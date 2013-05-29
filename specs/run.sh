@@ -5,4 +5,4 @@ MOCHA=$SPECS/../node_modules/mocha/bin/mocha
 
 $MOCHA --reporter spec \
        --require should \
-       --compilers coffee:coffee-script $SPECS/formatter/* $SPECS/access/* $SPECS/$1* $SPECS/schema/*
+       --compilers coffee:coffee-script $SPECS/formatter/* $SPECS/access/* $SPECS/schema/*

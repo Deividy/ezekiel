@@ -1,4 +1,3 @@
-fs = require('fs')
 h = require('../test-helper')
 DbSchema = h.requireSrc('schema/db-schema')
 SqlFormatter = h.requireSrc('dialects/mysql/mysql-formatter')
