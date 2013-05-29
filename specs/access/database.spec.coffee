@@ -5,21 +5,9 @@ async = h.async
 fs = require('fs')
 
 database = null
+
 before () ->
-  database = h.liveDb
-
-tmpTable = """
-DECLARE @names TABLE(
-    FirstName VARCHAR(50),
-    LastName VARCHAR (50)
-)
-
-INSERT INTO @names VALUES ('Vincent','Vega')
-INSERT INTO @names VALUES  ('Jules','Winnfield')
-INSERT INTO @names VALUES  ('Mia','Wallace')
-INSERT INTO @names VALUES  ('Marsellus','Wallace')
-
-"""
+    database = h.liveDb
 
 describe('Database', () ->
     it('should execute a simple query', (done) ->
@@ -32,7 +20,7 @@ describe('Database', () ->
     it('should execute a simple query as scalar', (done) ->
         query = "SELECT 42"
         database.scalar(query, (err, r) ->
-            done(err) if err
+            return done(err) if err
             r.should.eql(42)
             done()
         )
@@ -41,24 +29,23 @@ describe('Database', () ->
     it('tryScalar should behave as scalar with a unitary resultset', (done) ->
         query = "SELECT 42"
         database.tryScalar(query, (err, r) ->
-            done(err) if err
+            return done(err) if err
             r.should.eql(42)
             done()
         )
     )
 
     it('should allow empty resultsets when using tryScalar', (done) ->
-        query = "SELECT 42 WHERE 1 = 0"
+        query = "SELECT * FROM Fighters WHERE 1 = 0"
         database.tryScalar(query, (err, r) ->
-            done(err) if err
-            done("Resultset should be null") if r?
+            return done(err) if err
+            return done("Resultset should be null") if r?
             done()
         )
     )
 
-
     it('should return an error when tryScalar finds more than 1 row', (done) ->
-        query = "#{tmpTable} SELECT FirstName FROM @names WHERE LastName = 'Wallace'"
+        query = "SELECT FirstName FROM Fighters WHERE LastName = 'Silva'"
         database.tryScalar(query, (err, r) ->
             err.should.match(/Too many rows returned/)
             done()
@@ -74,25 +61,26 @@ describe('Database', () ->
     )
 
     it('tryOneRow should behave as oneRow with a unitary resultset', (done) ->
-        query = "#{tmpTable} SELECT FirstName, LastName FROM @names WHERE LastName = 'Winnfield'"
+        query = "SELECT FirstName, LastName FROM Fighters
+                                WHERE FirstName = 'Anderson' AND LastName = 'Silva'"
         database.tryOneRow(query, (err, r) ->
-            done(err) if err
-            r.should.eql({ FirstName: 'Jules', LastName: 'Winnfield' })
+            return done(err) if err
+            r.should.eql({ FirstName: 'Anderson', LastName: 'Silva' })
             done()
         )
     )
 
     it('should allow empty resultsets when using tryOneRow', (done) ->
-        query = "#{tmpTable} SELECT FirstName, LastName FROM @names WHERE FirstName = 'Pumpkin'"
+        query = "SELECT FirstName, LastName FROM Fighters WHERE FirstName = 'Pumpkin'"
         database.tryOneRow(query, (err, r) ->
-            done(err) if err
+            return done(err) if err
             done("Resultset should be null") if r?
             done()
         )
     )
 
     it('should return an error when tryOneRow finds more than 1 row', (done) ->
-        query = "#{tmpTable} SELECT FirstName, LastName FROM @names WHERE LastName = 'Wallace'"
+        query = "SELECT FirstName, LastName FROM Fighters WHERE LastName = 'Silva'"
         database.tryOneRow(query, (err, r) ->
             err.should.match(/Too many rows returned/)
             done()
