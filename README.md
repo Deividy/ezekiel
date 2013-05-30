@@ -25,9 +25,8 @@ Check lots of examples in specs/formatters/
 
 ## Connect and DB access
     # The processSchema config will build all our table gateways and active records
-    # but don't be scary, it's not so ugly, check out a simple example
+    # Check out this simple example using functoids
 
-    # functoids is another beauty that comes with ezekiel
     # https://github.com/gduarte/functoids
     F = require('functoids/src')
 
@@ -100,6 +99,6 @@ Check lots of examples in specs/access/
         actvieRecord.persist((err) ->)
     )
 
-#### Avaliable enginers
+#### Avaliable engines
   - Microsoft SQL Server
   - MySQL
