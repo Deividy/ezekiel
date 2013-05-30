@@ -54,9 +54,7 @@ insert = sql.insert("warriors", {
     age: 23
 })
 sqlInsert = "INSERT [warriors] ([name], [age]) VALUES ('Da Man', 23)"
-# Yeah, i also dont think its cool/right
-mysqlInsert = "INSERT `warriors`\n(`name`, `age`) VALUES ('Da Man', 23);\n"
-mysqlInsert += "SELECT LAST_INSERT_ID() as id;"
+mysqlInsert = "INSERT `warriors` (`name`, `age`) VALUES ('Da Man', 23);"
 
 describe('Quick start', () ->
 

@@ -15,20 +15,19 @@ class MysqlFormatter extends SqlFormatter
         #
         # https://dev.mysql.com/doc/refman/5.5/en/insert.html
         # http://dev.mysql.com/doc/refman/5.0/en/information-functions.html#function_last-insert-id
-
-        ret = ["INSERT #{@_doTargetTable(stmt.targetTable)}"]
         names = [ ]
         values = [ ]
         @fillNamesAndValues(stmt.values, names, values)
 
-        ret.push "(#{names.join(', ')}) VALUES (#{values.join(', ')});"
+        ret = ["INSERT #{@_doTargetTable(stmt.targetTable)} (#{names.join(', ')})"]
+        ret.push "VALUES (#{values.join(', ')});"
 
         if stmt.outputColumns?
             @addOutputColumns(ret, stmt.targetTable, stmt.outputColums)
-        else
-            ret.push "SELECT LAST_INSERT_ID() as id;"
+        else if (@.schema)
+            ret.push "SELECT LAST_INSERT_ID() as id; "
 
-        return ret.join("\n")
+        return ret.join(" ")
 
     upsert: (stmt) ->
         columns = [ ]
