@@ -1,6 +1,6 @@
 {
     "mssql" : {
-        "adapter": "tds",
+        "adapter": "tedious",
         "dialect": "tsql"
     },
 
