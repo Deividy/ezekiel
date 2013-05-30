@@ -186,3 +186,8 @@ e = ezekiel = {
 
 module.exports = ezekiel
 ezekiel.sql = require('./sql')
+ezekiel.formatters = {
+    SqlFormatter: require('./dialects/sql-formatter')
+    MysqlFormatter: require('./dialects/mysql/mysql-formatter')
+    TsqlFormatter: require('./dialects/tsql/tsql-formatter')
+}
