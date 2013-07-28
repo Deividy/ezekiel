@@ -5,6 +5,7 @@
     "private": false,
     "dependencies": {
         "tds": "git://github.com/cretz/node-tds.git",
+        "pg": "git://github.com/brianc/node-postgres.git",
         "functoids": "git://github.com/gduarte/functoids.git",
         "underscore": "",
         "coffee-script": "",
