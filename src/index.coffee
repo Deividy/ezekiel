@@ -173,7 +173,8 @@ e = ezekiel = {
             return cb(null, s)
 
     getAdapter: (connection) ->
-        name = 'tedious'
+        console.log connection
+        name = 'pg'
         path = "./adapters/#{name}"
         adapter = require(path)
         return new adapter(connection)

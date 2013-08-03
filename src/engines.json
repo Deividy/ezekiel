@@ -4,6 +4,11 @@
         "dialect": "tsql"
     },
 
+    "psql": {
+        "adapter": "pg",
+        "dialect": "psql"
+    },
+
     "mysql": {
         "adapter": "mysql",
         "dialect": "mysql"

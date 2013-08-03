@@ -6,6 +6,13 @@
             "userName": "sa",
             "password": "",
             "database": "TestDb"
+        },
+        "psql": {
+            "engine": "psql",
+            "host": "",
+            "userName": "",
+            "password": "",
+            "database": "TestDb"
         }
     }
 }
