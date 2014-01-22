@@ -7,6 +7,7 @@ class SqlMerge extends SqlStatement
     using: (@rows) -> @
     source: (@rows) -> @
     toSql: (f) -> f.merge(@)
+    ignoreColumnsForMerge: (@insertOnlyColumns = [ ]) -> @
 
 _.extend(sql, {
     merge: (t) -> new SqlMerge(t)

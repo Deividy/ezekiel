@@ -10,6 +10,8 @@ bulk = {
     # JS data. Should the DB be updated with NULLs, or should the null values be
     # ignored?
     merge: (merge) ->
+        @insertOnlyColumns = merge.insertOnlyColumns
+
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
 
@@ -54,6 +56,9 @@ bulk = {
 
         for c in @table.columns
             if c.isReadOnly && !key.contains(c)
+                continue
+
+            if c.property in @insertOnlyColumns
                 continue
 
             columns.push(c)
