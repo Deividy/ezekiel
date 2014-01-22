@@ -203,7 +203,8 @@ class TableGateway
 
         s = sql.merge(@sqlAlias)
                 .using(data)
-                .ignoreColumnsForMerge(@insertOnlyColumns)
+
+        s.ignoreColumnsForMerge.apply(s, @insertOnlyColumns)
 
         return @db.bindOrCall(s, 'noData', cb)
 

@@ -10,7 +10,7 @@ bulk = {
     # JS data. Should the DB be updated with NULLs, or should the null values be
     # ignored?
     merge: (merge) ->
-        @insertOnlyColumns = merge.insertOnlyColumns
+        @insertOnlyColumns = merge.insertOnlyColumns ? [ ]
 
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
