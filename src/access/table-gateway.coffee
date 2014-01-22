@@ -206,6 +206,7 @@ class TableGateway
 
         s.ignoreColumnsForMerge.apply(s, @insertOnlyColumns)
 
+        @insertOnlyColumns = [ ]
         return @db.bindOrCall(s, 'noData', cb)
 
     bindError: (msg, cb) ->
