@@ -195,18 +195,11 @@ class TableGateway
         q = new @selectClass(@)
         return q.from(@sqlAlias).select(sql.star(@sqlAlias))
 
-    ignoreColumnsForMerge: (@insertOnlyColumns...) -> @
-
     merge: (data, cb) ->
         F.demandArray(data, 'data')
         cb(null) if _.isEmpty(data)
 
-        s = sql.merge(@sqlAlias)
-                .using(data)
-
-        s.ignoreColumnsForMerge.apply(s, @insertOnlyColumns)
-
-        @insertOnlyColumns = [ ]
+        s = sql.merge(@sqlAlias).using(data)
         return @db.bindOrCall(s, 'noData', cb)
 
     bindError: (msg, cb) ->
