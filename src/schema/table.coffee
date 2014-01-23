@@ -293,7 +293,7 @@ class Table extends DbObject
             if canInsert && key?
                 target = mergesByKey[key.name]
             else if key?
-                target = updatesByKey[key.name]
+                target = mergesByKey[key.name]
             else if canInsert
                 target = inserts
             else

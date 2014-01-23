@@ -20,7 +20,8 @@ bulk = {
             throw new Error(e)
 
         shapes = @table.shapesFromRows(merge.rows)
-        
+        @bulkMergeCount = 0
+
         sql = [ ]
         for shape in shapes
             sql.push(@sqlMergeFor(shape))
@@ -84,7 +85,7 @@ bulk = {
             }
             tempTableColumns.push(tempColumn)
 
-        tempTableName = @nameTempTable('BulkMerge')
+        tempTableName = @nameTempTable("BulkMerge#{@bulkMergeCount++}")
 
         tempTable = schemer.table(name: tempTableName).addColumns(tempTableColumns)
         tempTable.primaryKey(columns: _.pluck(key.columns, 'name'), isClustered: true)
