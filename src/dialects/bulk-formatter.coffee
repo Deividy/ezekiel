@@ -7,15 +7,6 @@ schemer = require('../schema')
 
 bulk = {
     merge: (merge) ->
-        shapes = @table.shapesFromRows(merge.rows)
-        sql = [ ]
-
-        for shape in shapes
-            sql.push(@doMerge({ targetTable: merge.targetTable, rows: shape }))
-
-        return sql.join('\n')
-
-    doMerge: (merge) ->
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
 
@@ -28,6 +19,17 @@ bulk = {
             e = "merge: could not find schema for table #{target}."
             throw new Error(e)
 
+        shapes = @table.shapesFromRows(merge.rows)
+        
+        sql = [ ]
+        for shape in shapes
+            sql.push(@sqlMergeFor(shape))
+
+        console.log(sql.join('\n'))
+
+        return sql.join('\n')
+
+    sqlMergeFor: (rows) ->
         o = @table.classifyRowsForMerging(rows)
         @idx = 0
         size = o.cntRows + 16

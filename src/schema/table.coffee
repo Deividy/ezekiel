@@ -250,24 +250,19 @@ class Table extends DbObject
         shapeColumns = [ ]
         shapes = [ ]
 
-        _.each(data, (record) ->
-            recordColumns = _.keys(record).sort()
+        _.each(rows, (row) ->
+            rowColumns = _.keys(row).sort()
             columnShapeFound = false
 
-            if (shapeColumns.length == 0)
-                shapeColumns.push(recordColumns)
-                shapes.push([ record ])
-                return
-
             _.each(shapeColumns, (columns, idx) ->
-                if (_.isEqual(columns, recordColumns))
-                    shapes[idx].push(record)
+                if (_.isEqual(columns, rowColumns))
+                    shapes[idx].push(row)
                     columnShapeFound = true
             )
 
             if (!columnShapeFound)
-                shapes.push([ record ])
-                shapeColumns.push(recordColumns)
+                shapes.push([ row ])
+                shapeColumns.push(rowColumns)
         )
 
         return shapes
