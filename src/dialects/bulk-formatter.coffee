@@ -5,11 +5,43 @@ sql = require('../sql')
 SqlFormatter = require('./sql-formatter')
 schemer = require('../schema')
 
+shapesFromData = (data) ->
+    shapeColumns = [ ]
+    shapes = [ ]
+
+    _.each(data, (record) ->
+        recordColumns = _.keys(record).sort()
+        found = false
+
+        if (shapeColumns.length == 0)
+            shapeColumns.push(recordColumns)
+            shapes.push([ record ])
+            return
+
+        _.each(shapeColumns, (columns, idx) ->
+            if (_.isEqual(columns, recordColumns))
+                shapes[idx].push(record)
+                found = true
+        )
+
+        if (!found)
+            shapes.push([ record ])
+            shapeColumns.push(recordColumns)
+    )
+
+    return shapes
+
 bulk = {
-    # SHOULD: add an option for handling null and missing values in the source
-    # JS data. Should the DB be updated with NULLs, or should the null values be
-    # ignored?
     merge: (merge) ->
+        shapes = shapesFromData(merge.rows)
+        sql = [ ]
+
+        for shape in shapes
+            sql.push(@doMerge({ targetTable: merge.targetTable, rows: shape }))
+
+        return sql.join('\n')
+
+    doMerge: (merge) ->
         unless merge?.targetTable?
             throw new Error('you must provide a targetTable')
 
@@ -35,6 +67,7 @@ bulk = {
             @_addBulkMerges(keyName, rows)
 
         @lines.length = @idx
+
         return @lines.join('\n')
 
     _addBulkInserts: (rows) ->
