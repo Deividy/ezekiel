@@ -5,35 +5,9 @@ sql = require('../sql')
 SqlFormatter = require('./sql-formatter')
 schemer = require('../schema')
 
-shapesFromData = (data) ->
-    shapeColumns = [ ]
-    shapes = [ ]
-
-    _.each(data, (record) ->
-        recordColumns = _.keys(record).sort()
-        found = false
-
-        if (shapeColumns.length == 0)
-            shapeColumns.push(recordColumns)
-            shapes.push([ record ])
-            return
-
-        _.each(shapeColumns, (columns, idx) ->
-            if (_.isEqual(columns, recordColumns))
-                shapes[idx].push(record)
-                found = true
-        )
-
-        if (!found)
-            shapes.push([ record ])
-            shapeColumns.push(recordColumns)
-    )
-
-    return shapes
-
 bulk = {
     merge: (merge) ->
-        shapes = shapesFromData(merge.rows)
+        shapes = @table.shapesFromRows(merge.rows)
         sql = [ ]
 
         for shape in shapes

@@ -246,6 +246,32 @@ class Table extends DbObject
             # notice that composite is worse, so the logic is reversed
             return if k2.isComposite then k1 else k2
 
+    shapesFromRows: (rows) ->
+        shapeColumns = [ ]
+        shapes = [ ]
+
+        _.each(data, (record) ->
+            recordColumns = _.keys(record).sort()
+            columnShapeFound = false
+
+            if (shapeColumns.length == 0)
+                shapeColumns.push(recordColumns)
+                shapes.push([ record ])
+                return
+
+            _.each(shapeColumns, (columns, idx) ->
+                if (_.isEqual(columns, recordColumns))
+                    shapes[idx].push(record)
+                    columnShapeFound = true
+            )
+
+            if (!columnShapeFound)
+                shapes.push([ record ])
+                shapeColumns.push(recordColumns)
+        )
+
+        return shapes
+
     classifyRowsForMerging: (rows) ->
         F.demandArray(rows, 'rows')
 
