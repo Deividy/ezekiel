@@ -57,8 +57,6 @@ describe('Merge', () ->
         ], (err, results) ->
             return done(err) if (err?)
 
-            console.log(results)
-
             done()
         )
     )

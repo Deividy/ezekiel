@@ -136,13 +136,13 @@ class Table extends DbObject
         sins = null
         for c in @columns
             v = row[c.property]
-            if v?
+            if v?   # value is NOT NULL
                 # commission
                 e = c.getInsertError(v, ignoreReadOnly, needsMsg)
                 if e?
                     return true unless needsMsg
                     (sins ?= []).push(e)
-            else
+            else    # value is NULL
                 # ommission
                 if c.isRequired && !c.isReadOnly
                     return true unless needsMsg
@@ -293,7 +293,7 @@ class Table extends DbObject
             if canInsert && key?
                 target = mergesByKey[key.name]
             else if key?
-                target = mergesByKey[key.name]
+                target = updatesByKey[key.name]
             else if canInsert
                 target = inserts
             else

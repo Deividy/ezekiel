@@ -38,7 +38,7 @@ bulk = {
         @_addBulkInserts(o.inserts)
 
         for keyName, rows of o.updatesByKey
-            @_addBulkUpdates(keyName, rows)
+            @_addBulkMerges(keyName, rows)
 
         for keyName, rows of o.mergesByKey
             @_addBulkMerges(keyName, rows)
@@ -59,7 +59,13 @@ bulk = {
         return if _.isEmpty(rows)
         key = @table.db.constraintsByName[keyName]
 
-        cntValuesByColumn = {}
+        # get first row to check columns, all the rows in data set will
+        # have the same column
+        shapeColumnsArray = _.keys(rows[0])
+        shapeColumns = { }
+        for c in shapeColumnsArray
+            shapeColumns[c] = true
+
         columns = []
 
         for c in @table.columns
@@ -67,20 +73,14 @@ bulk = {
                 continue
 
             columns.push(c)
-            cntValuesByColumn[c.property] = 0
-
-        for r in rows
-            for c in columns
-                cntValuesByColumn[c.property]++ if r[c.property]?
 
         tempTableColumns = []
-        for c in columns
-            cntValues = cntValuesByColumn[c.property]
-            continue if cntValues == 0
 
-            nullable = cntValues < rows.length
+        for c in columns
+            continue if !(shapeColumns[c.property]?)
+
             tempColumn = {
-                name: c.name, property: c.property, isNullable: nullable,
+                name: c.name, property: c.property, isNullable: false,
                 dbDataType: c.dbDataType, maxLength: c.maxLength
             }
             tempTableColumns.push(tempColumn)
@@ -103,6 +103,11 @@ bulk = {
         @addLine("DROP TABLE " + @delimit(tempTableName) + ";")
 
     addLine: (l) -> @lines[@idx++] = l
+
+    # insertColumns
+    # updateColumns
+    # insertValues
+    # updateVlues
 
     doTableMerge: (target, source) ->
         t = (c) => "target." + @delimit(c.name)
