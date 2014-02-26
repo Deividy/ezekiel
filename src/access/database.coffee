@@ -81,12 +81,13 @@ class Database
 
         return (err, data) ->
             return cb(err) if err
+            return cb(null, null) unless data?
 
             # So far we have trusted the caller knows what they're doing and
             # made sure to fetch keys for whatever ActiveRecord type they wish
             # to work with. If they HAVEN'T, attach() is going to throw at us
             try
-                result = gw.attach(data ? { })
+                result = gw.attach(data)
             catch e
                 return cb(e)
 
