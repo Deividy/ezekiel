@@ -55,9 +55,16 @@ describe 'TableGateway', () ->
 
     it 'tryOneObject fails', (done) ->
         g = fighterGateway()
-        g.findOne(101).tryOneObject((err, fighter) ->
+        g.findOne(101).tryOneObject((err, r) ->
             return done(err) if err?
-            (fighter.id == undefined).should.be.true
+            done("Resultset should be null") if r?
+            done()
+        )
+
+    it 'tryOneObject finds more than 1 row', (done) ->
+        g = fighterGateway()
+        g.where({ lastName: 'Silva' }).tryOneObject((err, r) ->
+            err.should.match(/Too many rows returned/)
             done()
         )
 
