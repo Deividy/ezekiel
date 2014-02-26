@@ -52,7 +52,7 @@ class Database
     noData: (stmt, cb) ->
         @execute(stmt, { onDone: () -> cb(null) }, cb)
 
-    # MUST: add tryOneObject(), streamRows(), streamObjects()
+    # MUST: add streamRows(), streamObjects()
 
     scalar: (query, cb) -> @_selectOneRow(query, 'array', false, cb)
     tryScalar: (query, cb) -> @_selectOneRow(query, 'array', true, cb)
