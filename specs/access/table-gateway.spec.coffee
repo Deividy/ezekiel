@@ -40,10 +40,8 @@ assertIdOne = (rowAssert, done, fn) ->
 describe 'TableGateway', () ->
     it 'can be instantiated', () -> fighterGateway()
 
-
     it 'is accessible via database property', () ->
         db.fighters.should.be.instanceof(TableGateway)
-
 
     it 'can count rows', (done) ->
         db.fighters.count (err, cnt) ->
@@ -51,6 +49,17 @@ describe 'TableGateway', () ->
             cnt.should.eql(cntFighters)
             done()
 
+    it 'tryOneObject success', (done) ->
+        g = fighterGateway()
+        g.findOne(1).tryOneObject(assertFighterOne(done))
+
+    it 'tryOneObject fails', (done) ->
+        g = fighterGateway()
+        g.findOne(101).tryOneObject((err, fighter) ->
+            return done(err) if err?
+            (fighter.id == undefined).should.be.true
+            done()
+        )
 
     it 'can postpone query execution', (done) ->
         g = fighterGateway()
