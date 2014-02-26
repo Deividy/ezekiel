@@ -9,6 +9,7 @@ boundFunctions = {
     tryOneRow: (cb) -> @db.tryOneRow(@, cb)
     allRows: (cb) -> @db.allRows(@, cb)
 
+    tryOneObject: (cb) -> @db.tryOneObject(@, cb)
     oneObject: (cb) -> @db.oneObject(@, @gw.sqlAlias, cb)
     allObjects: (cb) -> @db.allObjects(@, @gw.sqlAlias, cb)
     array: (cb) -> @db.array(@, cb)

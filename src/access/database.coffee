@@ -60,6 +60,11 @@ class Database
     oneRow: (query, cb) -> @_selectOneRow(query, 'object', false, cb)
     tryOneRow: (query, cb) -> @_selectOneRow(query, 'object', true, cb)
 
+
+    tryOneObject: (query, typeOrCb, cbOrNull) ->
+        wrapper = @_buildRowWrapper(query, typeOrCb, cbOrNull)
+        return @tryOneRow(query, wrapper)
+
     oneObject: (query, typeOrCb, cbOrNull) ->
         wrapper = @_buildRowWrapper(query, typeOrCb, cbOrNull)
         return @oneRow(query, wrapper)
@@ -76,7 +81,7 @@ class Database
 
         return (err, data) ->
             return cb(err) if err
-            
+
             # So far we have trusted the caller knows what they're doing and
             # made sure to fetch keys for whatever ActiveRecord type they wish
             # to work with. If they HAVEN'T, attach() is going to throw at us
