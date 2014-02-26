@@ -86,7 +86,7 @@ class Database
             # made sure to fetch keys for whatever ActiveRecord type they wish
             # to work with. If they HAVEN'T, attach() is going to throw at us
             try
-                result = gw.attach(data)
+                result = gw.attach(data ? { })
             catch e
                 return cb(e)
 
