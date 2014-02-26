@@ -43,12 +43,6 @@ describe 'TableGateway', () ->
     it 'is accessible via database property', () ->
         db.fighters.should.be.instanceof(TableGateway)
 
-    it 'can count rows', (done) ->
-        db.fighters.count (err, cnt) ->
-            return done(err) if err
-            cnt.should.eql(cntFighters)
-            done()
-
     it 'tryOneObject success', (done) ->
         g = fighterGateway()
         g.findOne(1).tryOneObject(assertFighterOne(done))
@@ -67,6 +61,12 @@ describe 'TableGateway', () ->
             err.should.match(/Too many rows returned/)
             done()
         )
+
+    it 'can count rows', (done) ->
+        db.fighters.count (err, cnt) ->
+            return done(err) if err
+            cnt.should.eql(cntFighters)
+            done()
 
     it 'can postpone query execution', (done) ->
         g = fighterGateway()
