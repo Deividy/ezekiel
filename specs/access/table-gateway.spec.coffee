@@ -15,7 +15,6 @@ before () ->
     tables = schema.tablesByMany
 
 fighterGateway = () -> new TableGateway(db, tables.fighters)
-
 assertFighterOne = (done) -> (err, row) ->
     return done(err) if err
     row.id.should.eql(1)

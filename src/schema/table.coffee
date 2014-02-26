@@ -136,13 +136,13 @@ class Table extends DbObject
         sins = null
         for c in @columns
             v = row[c.property]
-            if v?   # value is NOT NULL
+            if v?
                 # commission
                 e = c.getInsertError(v, ignoreReadOnly, needsMsg)
                 if e?
                     return true unless needsMsg
                     (sins ?= []).push(e)
-            else    # value is NULL
+            else
                 # ommission
                 if c.isRequired && !c.isReadOnly
                     return true unless needsMsg
@@ -245,27 +245,6 @@ class Table extends DbObject
         if k1.isComposite != k2.isComposite
             # notice that composite is worse, so the logic is reversed
             return if k2.isComposite then k1 else k2
-
-    shapesFromRows: (rows) ->
-        shapeColumns = [ ]
-        shapes = [ ]
-
-        _.each(rows, (row) ->
-            rowColumns = _.keys(row).sort()
-            columnShapeFound = false
-
-            _.each(shapeColumns, (columns, idx) ->
-                if (_.isEqual(columns, rowColumns))
-                    shapes[idx].push(row)
-                    columnShapeFound = true
-            )
-
-            if (!columnShapeFound)
-                shapes.push([ row ])
-                shapeColumns.push(rowColumns)
-        )
-
-        return shapes
 
     classifyRowsForMerging: (rows) ->
         F.demandArray(rows, 'rows')
